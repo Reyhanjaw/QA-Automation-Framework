@@ -85,6 +85,8 @@ tasks.register('webTest', Test) {
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
 
+    systemProperty 'headless', System.getProperty('headless', 'false')
+
     filter {
         includeTestsMatching 'runners.WebTestRunner'
     }
