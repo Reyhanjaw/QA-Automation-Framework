@@ -1,0 +1,96 @@
+plugins {
+    id 'java'
+}
+
+group = 'DISADE'
+version = '1.0.0 FP'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // JUnit
+    testImplementation platform('org.junit:junit-bom:6.0.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Source: https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite
+    testImplementation 'org.junit.platform:junit-platform-suite'
+
+    // Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind
+    // Using Jackson instead of org.json to learn JSON serialization and deserialization.
+    testImplementation 'tools.jackson.core:jackson-databind:3.2.3'
+
+    // Source: https://mvnrepository.com/artifact/io.rest-assured/rest-assured
+    // REST assured
+    testImplementation 'io.rest-assured:rest-assured:6.0.1'
+    // Override the transitive Commons Codec version brought in by Apache HttpClient 4.5.13 through Rest Assured.
+    // Apache bring commons-code 1.11 detect as WS-2019-0379
+    // WS-2019-0379: Improper input validation in Apache Commons Codec may lead to information disclosure under certain conditions.
+    testImplementation 'commons-codec:commons-codec:1.22.1'
+
+    // Source: https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
+    // Selenium WebDriver
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.51.0'
+
+    // Cucumber BDD
+    // Source: https://mvnrepository.com/artifact/io.cucumber/cucumber-java
+    testImplementation 'io.cucumber:cucumber-java:8.0.3'
+    // Source: https://mvnrepository.com/artifact/io.cucumber/cucumber-junit-platform-engine
+    testImplementation 'io.cucumber:cucumber-junit-platform-engine:8.0.3'
+
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "failed", "skipped"
+        showStandardStreams = true
+    }
+}
+
+
+// Run API automation tests only
+tasks.register('apiTest', Test) {
+    description = 'Runs API automation tests'
+    group = 'verification'
+
+    useJUnitPlatform {
+        includeEngines 'junit-platform-suite'
+    }
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    filter {
+        includeTestsMatching 'runners.ApiTestRunner'
+    }
+
+    reports {
+        html.outputLocation = layout.buildDirectory.dir('reports/api-tests')
+        junitXml.outputLocation = layout.buildDirectory.dir('test-results/api-tests')
+    }
+}
+
+// Run Web UI automation tests only
+tasks.register('webTest', Test) {
+    description = 'Runs Web UI automation tests'
+    group = 'verification'
+
+    useJUnitPlatform {
+        includeEngines 'junit-platform-suite'
+    }
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    filter {
+        includeTestsMatching 'runners.WebTestRunner'
+    }
+
+    reports {
+        html.outputLocation = layout.buildDirectory.dir('reports/web-tests')
+        junitXml.outputLocation = layout.buildDirectory.dir('test-results/web-tests')
+    }
+}

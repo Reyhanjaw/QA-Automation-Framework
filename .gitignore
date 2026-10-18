@@ -1,0 +1,8 @@
+
+.gradle/
+build/
+.idea/
+*.iml
+api-debug.log
+api-test-log.txt
+.env
