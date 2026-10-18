@@ -1,75 +1,124 @@
-
+# Defines the name displayed in the GitHub Actions workflow list.
 name: QA Automation Tests
 
+# Specifies the events that trigger this workflow.
 on:
+  # Runs the workflow whenever code is pushed to the master branch.
   push:
     branches: [master]
+
+  # Runs the workflow when a pull request targets the master branch.
   pull_request:
     branches: [master]
+
+  # Allows the workflow to be triggered manually from the GitHub Actions tab.
   workflow_dispatch:
 
+# Defines the jobs executed by this workflow.
 jobs:
+
+  # Job for executing API automation tests.
   api-tests:
+    # Display name shown in the GitHub Actions interface.
     name: API Automation
+
+    # Uses a GitHub-hosted Ubuntu virtual machine.
     runs-on: ubuntu-latest
 
+    # Lists the steps executed sequentially within this job.
     steps:
+      # Downloads the repository source code to the runner.
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Installs the required Java Development Kit (JDK).
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
+          # Uses Eclipse Temurin as the Java distribution.
           distribution: temurin
+
+          # Specifies Java 25 as the runtime version.
           java-version: '25'
 
+      # Ensures the Gradle Wrapper script can be executed on Linux.
       - name: Grant execute permission to Gradle Wrapper
         run: chmod +x gradlew
 
+      # Executes the dedicated Gradle task for API automation tests.
       - name: Run API tests
         run: ./gradlew apiTest
         env:
+          # Retrieves the API application ID from GitHub repository secrets.
+          # This keeps sensitive configuration out of the source code.
           DUMMYAPI_APP_ID: ${{ secrets.DUMMYAPI_APP_ID }}
 
+      # Uploads test reports even if the test step fails.
       - name: Upload API reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
+          # Name used to identify the downloaded report artifact.
           name: api-test-reports
+
+          # Specifies the directories containing the API test reports.
           path: |
             build/reports/api-tests/
             build/reports/cucumber-reports/api
+
+          # Displays a warning instead of failing if no report files are found.
           if-no-files-found: warn
 
+  # Job for executing Web UI automation tests.
   web-tests:
+    # Display name shown in the GitHub Actions interface.
     name: Web UI Automation
+
+    # Uses a separate GitHub-hosted Ubuntu virtual machine.
     runs-on: ubuntu-latest
 
+    # Lists the steps executed sequentially within this job.
     steps:
+      # Downloads the repository source code to the runner.
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Installs the required Java Development Kit (JDK).
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
+          # Uses Eclipse Temurin as the Java distribution.
           distribution: temurin
+
+          # Specifies Java 25 as the runtime version.
           java-version: '25'
 
+      # Ensures the Gradle Wrapper script can be executed on Linux.
       - name: Grant execute permission to Gradle Wrapper
         run: chmod +x gradlew
 
+      # Runs Web UI tests in headless mode without opening a visible browser window.
       - name: Run Web UI tests
         run: ./gradlew -Dheadless=true webTest
         env:
+          # Retrieves the demo website username from GitHub repository secrets.
           DEMO_USERNAME: ${{ secrets.DEMO_USERNAME }}
+
+          # Retrieves the demo website password from GitHub repository secrets.
           DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
 
+      # Uploads test reports even if the test step fails.
       - name: Upload Web UI reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
+          # Name used to identify the downloaded report artifact.
           name: web-test-reports
+
+          # Specifies the directories containing the Web UI test reports.
           path: |
             build/reports/web-tests/
             build/reports/cucumber-reports/web
+
+          # Displays a warning instead of failing if no report files are found.
           if-no-files-found: warn

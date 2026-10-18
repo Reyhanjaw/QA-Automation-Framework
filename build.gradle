@@ -1,98 +1,141 @@
+// Applies the Java plugin, enabling Java compilation, testing, and related tasks.
 plugins {
     id 'java'
 }
 
+// Defines the project group and version.
+// These values help identify the project and its current version.
 group = 'DISADE'
 version = '1.0.0 FP'
 
+// Specifies Maven Central as the repository for downloading dependencies.
 repositories {
     mavenCentral()
 }
 
 dependencies {
-
-    // JUnit
+    // JUnit: Provides the testing framework and test execution support.
+    // The BOM manages compatible versions of JUnit dependencies.
     testImplementation platform('org.junit:junit-bom:6.0.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // Provides the JUnit Platform launcher required to discover and execute tests.
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Enables JUnit Platform Suite annotations for grouping and configuring test runners.
     // Source: https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite
     testImplementation 'org.junit.platform:junit-platform-suite'
 
+    // Jackson: Supports JSON serialization and deserialization.
+    // Used instead of org.json to practice working with JSON data.
     // Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind
-    // Using Jackson instead of org.json to learn JSON serialization and deserialization.
     testImplementation 'tools.jackson.core:jackson-databind:3.2.3'
 
+    // REST Assured: Provides methods for sending HTTP requests and validating API responses.
     // Source: https://mvnrepository.com/artifact/io.rest-assured/rest-assured
-    // REST assured
     testImplementation 'io.rest-assured:rest-assured:6.0.1'
-    // Override the transitive Commons Codec version brought in by Apache HttpClient 4.5.13 through Rest Assured.
-    // Apache bring commons-code 1.11 detect as WS-2019-0379
-    // WS-2019-0379: Improper input validation in Apache Commons Codec may lead to information disclosure under certain conditions.
+
+    // Overrides the transitive Commons Codec version brought in through Apache HttpClient.
+    // The older version was associated with security finding WS-2019-0379.
+    // This dependency explicitly selects the newer version used by the project.
     testImplementation 'commons-codec:commons-codec:1.22.1'
 
+    // Selenium WebDriver: Automates browser interactions for Web UI testing.
     // Source: https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
-    // Selenium WebDriver
     testImplementation 'org.seleniumhq.selenium:selenium-java:4.51.0'
 
-    // Cucumber BDD
+    // Cucumber BDD: Allows test scenarios to be written in Gherkin
+    // and connected to Java step definitions.
     // Source: https://mvnrepository.com/artifact/io.cucumber/cucumber-java
     testImplementation 'io.cucumber:cucumber-java:8.0.3'
+
+    // Integrates Cucumber with the JUnit Platform so Cucumber scenarios
+    // can be executed through JUnit Platform Suite runners.
     // Source: https://mvnrepository.com/artifact/io.cucumber/cucumber-junit-platform-engine
     testImplementation 'io.cucumber:cucumber-junit-platform-engine:8.0.3'
-
 }
 
+// Configures the default Gradle test task.
 test {
+    // Uses the JUnit Platform to discover and execute tests.
     useJUnitPlatform()
+
+    // Controls which test execution events are displayed in the console.
     testLogging {
         events "passed", "failed", "skipped"
+
+        // Displays standard output and error streams produced during test execution.
         showStandardStreams = true
     }
 }
 
-
-// Run API automation tests only
+// Defines a dedicated task for running API automation tests only.
 tasks.register('apiTest', Test) {
+    // Describes the task in Gradle task listings.
     description = 'Runs API automation tests'
+
+    // Groups the task under Gradle's verification tasks.
     group = 'verification'
 
+    // Uses the JUnit Platform Suite engine to execute the API test runner.
     useJUnitPlatform {
         includeEngines 'junit-platform-suite'
     }
 
+    // Specifies the compiled test classes and runtime dependencies.
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
 
+    // Includes only the API test runner, preventing the Web UI runner
+    // from being executed by this task.
     filter {
         includeTestsMatching 'runners.ApiTestRunner'
     }
 
+    // Defines where Gradle saves the API test reports.
     reports {
+        // Generates the Gradle HTML test report.
         html.outputLocation = layout.buildDirectory.dir('reports/api-tests')
+
+        // Generates the JUnit XML report for integrations with CI tools.
         junitXml.outputLocation = layout.buildDirectory.dir('test-results/api-tests')
     }
 }
 
-// Run Web UI automation tests only
+// Defines a dedicated task for running Web UI automation tests only.
 tasks.register('webTest', Test) {
+    // Describes the task in Gradle task listings.
     description = 'Runs Web UI automation tests'
+
+    // Groups the task under Gradle's verification tasks.
     group = 'verification'
 
+    // Uses the JUnit Platform Suite engine to execute the Web UI test runner.
     useJUnitPlatform {
         includeEngines 'junit-platform-suite'
     }
 
+    // Specifies the compiled test classes and runtime dependencies.
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
 
+    // Passes the headless setting to the Java test process.
+    // If no value is provided, the default is false.
+    // CI can enable headless mode with: ./gradlew -Dheadless=true webTest
     systemProperty 'headless', System.getProperty('headless', 'false')
 
+    // Includes only the Web UI test runner, preventing the API runner
+    // from being executed by this task.
     filter {
         includeTestsMatching 'runners.WebTestRunner'
     }
 
+    // Defines where Gradle saves the Web UI test reports.
     reports {
+        // Generates the Gradle HTML test report.
         html.outputLocation = layout.buildDirectory.dir('reports/web-tests')
+
+        // Generates the JUnit XML report for integrations with CI tools.
         junitXml.outputLocation = layout.buildDirectory.dir('test-results/web-tests')
     }
 }
