@@ -17,7 +17,7 @@ import static io.cucumber.junit.platform.engine.Constants.FILTER_TAGS_PROPERTY_N
 @ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@api")
 @ConfigurationParameter(
         key = PLUGIN_PROPERTY_NAME,
-        value = "pretty, html:build/reports/api-tests/cucumber/report.html, json:build/reports/api-tests/cucumber/report.json"
+        value = "pretty, html:build/reports/cucumber-reports/api/report.html, json:build/reports/cucumber-reports/api/report.json"
 )
 @ConfigurationParameter(key = "cucumber.execution.parallel.enabled", value = "false")
 public class ApiTestRunner {

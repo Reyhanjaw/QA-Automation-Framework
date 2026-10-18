@@ -18,7 +18,7 @@ import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 )
 @ConfigurationParameter(
         key = PLUGIN_PROPERTY_NAME,
-        value = "pretty, html:build/reports/web-tests/cucumber/report.html, json:build/reports/web-tests/cucumber/report.json"
+        value = "pretty, html:build/reports/cucumber-reports/web/report.html, json:build/reports/cucumber-reports/web/report.json"
 )
 @ConfigurationParameter(key = "cucumber.execution.parallel.enabled", value = "false")
 public class WebTestRunner {

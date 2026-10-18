@@ -36,7 +36,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api-test-reports
-          path: build/reports/api-tests/
+          path:
+            build/reports/api-tests/
+            build/reports/cucumber-reports/api
           if-no-files-found: warn
 
   web-tests:
@@ -67,5 +69,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-test-reports
-          path: build/reports/web-tests/
+          path:
+            build/reports/web-tests/
+            build/reports/cucumber-reports/web
           if-no-files-found: warn
