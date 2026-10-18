@@ -53,6 +53,9 @@ jobs:
           distribution: temurin
           java-version: '25'
 
+      - name: Grant execute permission to Gradle Wrapper
+        run: chmod +x gradlew
+
       - name: Run Web UI tests
         run: ./gradlew webTest
         env:
